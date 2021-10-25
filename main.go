@@ -5,13 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"example.com/sample-api/driver"
+	"github.com/gorilla/mux"
 
+	"example.com/sample-api/driver"
 	studentHandler "example.com/sample-api/handlers/student"
 	studentService "example.com/sample-api/services/student"
 	studentStore "example.com/sample-api/stores/student"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
