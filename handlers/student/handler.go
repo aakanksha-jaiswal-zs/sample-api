@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
+	"example.com/sample-api/errors"
+
 	"github.com/gorilla/mux"
 
-	"example.com/sample-api/errors"
 	"example.com/sample-api/models"
 	"example.com/sample-api/services"
 )
@@ -27,7 +28,6 @@ func New(s services.Student) handler {
 func (h handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	students, err := h.service.GetAll()
 	if err != nil {
-		// handle this error
 		setStatus(w, err)
 		return
 	}
@@ -65,7 +65,6 @@ func (h handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	student, err := h.service.Get(int64(studentID))
 	if err != nil {
-		// handle this error
 		setStatus(w, err)
 		return
 	}
@@ -76,24 +75,11 @@ func (h handler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK) // todo set status first, write response after that
+	w.WriteHeader(http.StatusOK)
 
 	_, err = w.Write(resp)
 	if err != nil {
 		log.Println("error in writing response")
-	}
-}
-
-func setStatus(w http.ResponseWriter, err error) {
-	log.Println(err)
-
-	switch err.(type) {
-	case errors.EntityNotFound:
-		w.WriteHeader(http.StatusNotFound)
-	case errors.EntityAlreadyExists, errors.InvalidParam, errors.MissingParam: // todo statusOK
-		w.WriteHeader(http.StatusBadRequest)
-	default:
-		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
 
@@ -114,7 +100,6 @@ func (h handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	student, err = h.service.Create(student)
 	if err != nil {
-		// handle this error
 		setStatus(w, err)
 		return
 	}
@@ -166,7 +151,7 @@ func (h handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	student, err = h.service.Update(student)
 	if err != nil {
-		// handle this error
+
 		setStatus(w, err)
 		return
 	}
@@ -202,10 +187,24 @@ func (h handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = h.service.Delete(int64(studentID))
 	if err != nil {
-		// handle this error
 		setStatus(w, err)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK) //todo status no content
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func setStatus(w http.ResponseWriter, err error) {
+	log.Println(err)
+
+	switch err.(type) {
+	case errors.EntityAlreadyExists:
+		w.WriteHeader(http.StatusOK)
+	case errors.EntityNotFound:
+		w.WriteHeader(http.StatusNotFound)
+	case errors.InvalidParam, errors.MissingParam:
+		w.WriteHeader(http.StatusBadRequest)
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }

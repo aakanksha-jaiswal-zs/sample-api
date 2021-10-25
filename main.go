@@ -16,7 +16,7 @@ import (
 
 func main() {
 	const PORT = 8000
-	cfg := driver.SQLConfigs{
+	cfg := driver.Configs{
 		Host:     "localhost",
 		Username: "root",
 		Password: "password",
@@ -29,7 +29,10 @@ func main() {
 		log.Fatalf("cannot connect to database: %v\n", err)
 	}
 
+	defer db.Close()
+
 	log.Printf("connected to mysql, %s:%d ; database: %s\n", cfg.Host, cfg.Port, cfg.Database)
+
 	r := mux.NewRouter()
 
 	store := studentStore.New(db)
@@ -59,6 +62,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("error in starting server: %v\n", err)
 	}
-
-	log.Printf("starting server at port %d\n", PORT)
 }
